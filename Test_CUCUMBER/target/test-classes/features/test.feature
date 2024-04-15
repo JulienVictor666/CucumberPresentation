@@ -10,6 +10,7 @@ Fonctionnalité: : préparation recette
     # On prend une {string} dans cette étape. Si on avait pris une variable de type {word} dans cette étape, pas besoin de guillement mais on ne peut pas autoriser les espaces dans ce cas
     Etant donné que je veux faire la recette "plat surgelé"
     # On autorise une variable qui doit correspondre à un regex. Si la variable ne correspond pas l'étape n'est pas reconnu
+    # https://github.com/cucumber/cucumber-expressions/tree/main
     Et que j'ai un MICRO_ONDE
     # On prend une liste d'élément en entré
     Et J'ai les ingrédient suivant :
