@@ -121,7 +121,7 @@ public class StepRecettes {
         context.initContext();
     }
 
-    @Etantdonnéque("J'ai les ingrédient suivant :")
+    @Etantdonnéque("J'ai les ingrédients suivant :")
     public void jAiLesIngredientSuivant(DataTable table) {
         // Cette étape utilise attend d'avoir un dataTable en entré. S'est un objet particulier qui peut s'utilise sans le convertir
         // mais il est très souvent plus simple de le convertir en liste ou map ou list de list ou map de map
@@ -133,7 +133,7 @@ public class StepRecettes {
 
     }
 
-    @Etantdonnéque("J'ai appris les recettes suivantes :")
+    @Etantdonnéque("J'ai appris les recettes/plats suivant(e)s :")
     public void jAiApprisLesRecettesSuivantes(Map<String, Map<String, String>> table) {
         // On récupère les lignes en premiers
         for (Map.Entry<String, Map<String, String>> entry : table.entrySet()) {
@@ -230,4 +230,50 @@ public class StepRecettes {
         assertTrue("La recette est raté", ingredientOK && materielOK && etapeOK);
     }
 
+    @Etantdonnéque("je veux faire la recette {string} et j'ai les ingrédients")
+    public void jeVeuxFaireLaRecetteEtJAiLesIngrédients(String recette) throws Exception {
+        if (recetteConnu.containsKey(recette)) {
+            context.nomRecetteARealiser = recette;
+        }
+        else {
+            throw new Exception("cette recette n'est pas connu");
+        }
+
+        context.ingredients = recetteConnu.get(recette).getIngredients();
+    }
+
+    @Quand("Je réalise les actions nécessaire à la recette")
+    public void jeRéaliseLesActionsNécessaireÀLaRecette() {
+        context.etapeRealisations = recetteConnu.get(context.nomRecetteARealiser).getEtapeRealisations();
+    }
+
+    @Etantdonnéque("J'ai le matériel nécessaire")
+    public void jAiLeMatérielNécessaire() {
+        context.appareilCuisson = recetteConnu.get(context.nomRecetteARealiser).getModeCuisson();
+    }
+
+    @Quand("Etape list")
+    public void etapeList(List<String> table) {
+        System.out.println(table);
+    }
+
+    @Quand("Etape map")
+    public void etapeMap(Map<String, String> table) {
+        System.out.println(table);
+    }
+
+    @Quand("Etape list de maps")
+    public void etapeListDeMaps(List<Map<String, String>> table) {
+        System.out.println(table);
+    }
+
+    @Quand("Etape map de list")
+    public void etapeMapDeList(Map<String, List<String>> table) {
+        System.out.println(table);
+    }
+
+    @Quand("Etape map de maps")
+    public void etapeMapDeMaps(Map<String, Map<String, String>> table) {
+        System.out.println(table);
+    }
 }

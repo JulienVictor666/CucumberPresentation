@@ -1,7 +1,7 @@
 # language: fr
 
 # Un fichier feature teste une fonctionnalité
-Fonctionnalité: : préparation recette
+Fonctionnalité: préparation recette
 
   Mon commantaire sur la fonctionnalité.
 
@@ -13,7 +13,7 @@ Fonctionnalité: : préparation recette
     # https://github.com/cucumber/cucumber-expressions/tree/main
     Et que j'ai un MICRO_ONDE
     # On prend une liste d'élément en entré
-    Et J'ai les ingrédient suivant :
+    Et J'ai les ingrédients suivant :
       | SACHET_SURGELE |
     Quand  Je réalise l'action : CUIRE
     Alors  Je réussi la recette
@@ -25,7 +25,7 @@ Fonctionnalité: : préparation recette
     # Comme cette étape n'est pas normalement une étape de test je préfére sortir avec une exception
     Etant donné que je veux faire la recette "soupe à la tomate"
     Et que j'ai un MICRO_ONDE
-    Et J'ai les ingrédient suivant :
+    Et J'ai les ingrédients suivant :
       | SACHET_SURGELE |
     Quand  Je réalise l'action : CUIRE
     Alors  Je réussi la recette
@@ -37,7 +37,7 @@ Fonctionnalité: : préparation recette
     Etant donné que Je réussi la recette
     Et que je veux faire la recette "plat surgelé"
     Et que j'ai un MICRO_ONDE
-    Et J'ai les ingrédient suivant :
+    Et J'ai les ingrédients suivant :
       | SACHET_SURGELE |
     Quand  Je réalise l'action : CUIRE
     Alors  Je réussi la recette
@@ -49,7 +49,7 @@ Fonctionnalité: : préparation recette
     Etant donné que je veux faire la recette "brioche"
     Et que j'ai un FOUR
     # J'oublie le sucre
-    Et J'ai les ingrédient suivant :
+    Et J'ai les ingrédients suivant :
       | FARINE    |
       | BEURRE    |
       | OEUFS     |
@@ -66,14 +66,14 @@ Fonctionnalité: : préparation recette
     # Dans la glue de cette étape on utilise la convertion automatique du dataTable
     # https://cucumber.io/docs/cucumber/configuration/?lang=java
     # https://github.com/cucumber/cucumber-jvm/tree/main/cucumber-java#data-tables
-    Etant donné que J'ai appris les recettes suivantes :
+    Etant donné que J'ai appris les plats suivants :
       |                           | Ingredients                                | ModeCuisson       | Etapes                   | Exquis |
       | purée de pommes de terre  | POMME_DE_TERRE,BEURRE,LAIT                 | PLAQUE_DE_CUISSON | COUPER,CUIRE,MELANGER    | true   |
       | purée de carottes         | POMME_DE_TERRE,BEURRE,LAIT,CAROTTES,EPICES | PLAQUE_DE_CUISSON | COUPER,CUIRE,MELANGER    | true   |
 
     Et que je veux faire la recette "purée de pommes de terre"
     Et que j'ai un PLAQUE_DE_CUISSON
-    Et J'ai les ingrédient suivant :
+    Et J'ai les ingrédients suivant :
       | POMME_DE_TERRE |
       | BEURRE         |
       | LAIT           |
