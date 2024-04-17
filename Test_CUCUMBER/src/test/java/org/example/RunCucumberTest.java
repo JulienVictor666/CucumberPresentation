@@ -10,5 +10,4 @@ import org.junit.runner.RunWith;
         features = "classpath:features",
         glue = "classpath:org.example.glue")
 class RunCucumberTest {
-
 }

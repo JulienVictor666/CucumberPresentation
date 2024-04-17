@@ -3,6 +3,7 @@ package org.example.glue;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.Before;
 import io.cucumber.java.BeforeAll;
+import io.cucumber.java.DataTableType;
 import io.cucumber.java.ParameterType;
 import io.cucumber.java.fr.Alors;
 import io.cucumber.java.fr.Et;
@@ -19,9 +20,9 @@ import static org.junit.Assert.assertTrue;
 
 public class StepRecettes {
 
-    ContextTests context = new ContextTests();
+    Context context = new Context();
 
-    public static Map<String, Recette> recetteConnu= new HashMap<>();
+    public static Map<String, Recette> recetteConnu = new HashMap<>();
 
     @BeforeAll
     public static void InitGeneral() {
@@ -127,7 +128,7 @@ public class StepRecettes {
         // mais il est très souvent plus simple de le convertir en liste ou map ou list de list ou map de map
         List<String> rowIngredients = table.asList(String.class);
 
-        for(String row: rowIngredients) {
+        for (String row : rowIngredients) {
             context.ingredients.add(Ingredient.valueOf(row));
         }
 
@@ -145,13 +146,13 @@ public class StepRecettes {
 
             List<String> ingredientsString = new ArrayList<>(Arrays.asList(stringIngredients.split(",")));
             List<Ingredient> ingredients = new ArrayList<>();
-            for(String ingredientString : ingredientsString) {
+            for (String ingredientString : ingredientsString) {
                 ingredients.add(Ingredient.valueOf(ingredientString));
             }
 
             List<String> etapesString = new ArrayList<>(Arrays.asList(stringEtapes.split(",")));
             List<EtapeRealisation> etapes = new ArrayList<>();
-            for(String etapeString : etapesString) {
+            for (String etapeString : etapesString) {
                 etapes.add(EtapeRealisation.valueOf(etapeString));
             }
 
@@ -171,8 +172,7 @@ public class StepRecettes {
     public void jeVeuxFaireLaRecette(String recette) throws Exception {
         if (recetteConnu.containsKey(recette)) {
             context.nomRecetteARealiser = recette;
-        }
-        else {
+        } else {
             throw new Exception("cette recette n'est pas connu");
         }
     }
@@ -189,12 +189,12 @@ public class StepRecettes {
 
     //Paramètre spécifique
     @ParameterType("FOUR|MICRO_ONDE|PLAQUE_DE_CUISSON")  // regexp
-    public AppareilCuisson appareil(String appareil){
+    public AppareilCuisson appareil(String appareil) {
         return AppareilCuisson.valueOf(appareil);
     }
 
     @ParameterType("COUPER|MELANGER|ATTENDRE|CUIRE")  // regexp
-    public EtapeRealisation etape(String etape){
+    public EtapeRealisation etape(String etape) {
         return EtapeRealisation.valueOf(etape);
     }
 
@@ -205,7 +205,7 @@ public class StepRecettes {
 
         boolean ingredientOK = true;
 
-        for(Ingredient ingredient : ingredientsRecette) {
+        for (Ingredient ingredient : ingredientsRecette) {
             if (!context.ingredients.contains(ingredient)) {
                 ingredientOK = false;
                 break;
@@ -219,7 +219,7 @@ public class StepRecettes {
         List<EtapeRealisation> etapesRecette = recette.getEtapeRealisations();
 
         if (etapesRecette.size() == context.etapeRealisations.size()) {
-            for(int i = 0; i < etapesRecette.size(); i++) {
+            for (int i = 0; i < etapesRecette.size(); i++) {
                 if (context.etapeRealisations.get(i) != etapesRecette.get(i)) {
                     etapeOK = false;
                     break;
@@ -234,8 +234,7 @@ public class StepRecettes {
     public void jeVeuxFaireLaRecetteEtJAiLesIngrédients(String recette) throws Exception {
         if (recetteConnu.containsKey(recette)) {
             context.nomRecetteARealiser = recette;
-        }
-        else {
+        } else {
             throw new Exception("cette recette n'est pas connu");
         }
 
@@ -276,4 +275,36 @@ public class StepRecettes {
     public void etapeMapDeMaps(Map<String, Map<String, String>> table) {
         System.out.println(table);
     }
+
+    @Etantdonnéque("J'ai appris les plats suivants : \\(convertion auto)")
+    public void jAiApprisLesPlatsSuivantsConvertionAuto(List<Recette> recettes) {
+        for(Recette recette : recettes) {
+            recetteConnu.put(recette.getNomRecette(), recette);
+        }
+    }
+
+    @DataTableType
+    public Recette recetteEntryTransformer(Map<String, String> table) {
+
+        String nomRecette = table.get("NomRecette");
+        String stringIngredients = table.get("Ingredients");
+        String stringModeCuisson = table.get("ModeCuisson");
+        String stringEtapes = table.get("Etapes");
+        String stringExquis = table.get("Exquis");
+
+        List<String> ingredientsString = new ArrayList<>(Arrays.asList(stringIngredients.split(",")));
+        List<Ingredient> ingredients = new ArrayList<>();
+        for (String ingredientString : ingredientsString) {
+            ingredients.add(Ingredient.valueOf(ingredientString));
+        }
+
+        List<String> etapesString = new ArrayList<>(Arrays.asList(stringEtapes.split(",")));
+        List<EtapeRealisation> etapes = new ArrayList<>();
+        for (String etapeString : etapesString) {
+            etapes.add(EtapeRealisation.valueOf(etapeString));
+        }
+
+        return new Recette(nomRecette, ingredients, AppareilCuisson.valueOf(stringModeCuisson), etapes, stringExquis.equalsIgnoreCase("true"));
+    }
+
 }

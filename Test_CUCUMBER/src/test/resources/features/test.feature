@@ -19,7 +19,9 @@ Fonctionnalité: préparation recette
     Alors  Je réussi la recette
 
 
-  Scénario: On peut sortir avant de faire les tests. Attention à ne pas faire
+  Scénario: Une étape renvoi une erreur.
+
+  Si une étape renvoi une erreur on ne fait pas les autres étapes de ce scénario mais on fait les autre scénario
 
     # Cette première étape à une vérification et peut sortir en erreur et donc arrêter le reste du test.
     # Comme cette étape n'est pas normalement une étape de test je préfére sortir avec une exception
@@ -30,13 +32,16 @@ Fonctionnalité: préparation recette
     Quand  Je réalise l'action : CUIRE
     Alors  Je réussi la recette
 
-  Scénario: Les mot clé utilisé dans la glue et dans le Gherkin n'ont pas d'importance pour l'éxécution
+  Scénario: La glue et les mots clé
+
+  Les mot clé utilisé dans la glue et dans le Gherkin n'ont pas d'importance pour l'éxécution. Une étape Alors et utilisé en Etant donnée que
 
     # l'étape j'ai réussi la recette est normalement une étape Alors. Il faut éviter ce genre de chose mais CUCUMBER ne vas pas dire que cela est une erreur.
     # on se retrouve alors avec une erreur que l'on ne comprend pas obligatoirement
-    Etant donné que Je réussi la recette
-    Et que je veux faire la recette "plat surgelé"
+
+    Etant donné que je veux faire la recette "plat surgelé"
     Et que j'ai un MICRO_ONDE
+    Etant donné que Je réussi la recette
     Et J'ai les ingrédients suivant :
       | SACHET_SURGELE |
     Quand  Je réalise l'action : CUIRE
@@ -44,7 +49,7 @@ Fonctionnalité: préparation recette
 
 
 
-  Scénario: Test réalisation d'une brioche
+  Scénario: Test réalisation d'une brioche avec un ingrédient en moins
 
     Etant donné que je veux faire la recette "brioche"
     Et que j'ai un FOUR
@@ -77,6 +82,26 @@ Fonctionnalité: préparation recette
       | POMME_DE_TERRE |
       | BEURRE         |
       | LAIT           |
+    Quand Je réalise l'action : COUPER
+    Et Je réalise l'action : CUIRE
+    Et Je réalise l'action : MELANGER
+    Alors Je réussi la recette
+
+  Scénario: Ajout d'une recette et réalisation avec conversion automatique
+
+    Etant donné que J'ai appris les plats suivants : (convertion auto)
+      | NomRecette                | Ingredients                                | ModeCuisson       | Etapes                   | Exquis |
+      | purée de pommes de terre  | POMME_DE_TERRE,BEURRE,LAIT                 | PLAQUE_DE_CUISSON | COUPER,CUIRE,MELANGER    | true   |
+      | purée de carottes         | POMME_DE_TERRE,BEURRE,LAIT,CAROTTES,EPICES | PLAQUE_DE_CUISSON | COUPER,CUIRE,MELANGER    | true   |
+
+    Et que je veux faire la recette "purée de carottes"
+    Et que j'ai un PLAQUE_DE_CUISSON
+    Et J'ai les ingrédients suivant :
+      | POMME_DE_TERRE |
+      | BEURRE         |
+      | LAIT           |
+      | CAROTTES       |
+      | EPICES         |
     Quand Je réalise l'action : COUPER
     Et Je réalise l'action : CUIRE
     Et Je réalise l'action : MELANGER

@@ -137,6 +137,17 @@ Pour la partie Maven, il faut récupérer les dépendances suivantes dans votre 
 La première dépendance permettra de mettre en place la glue
 La seconde permet de lancer les tests CUCUMBER avec la commande `mvn test`
 
+```xml
+<dependency>
+    <groupId>junit</groupId>
+    <artifactId>junit</artifactId>
+    <version>4.13.2</version>
+    <scope>test</scope>
+</dependency>
+```
+
+On aura aussi besoin de Junit pour lancer les tests et potentiellement utiliser les méthodes de type assert lors de nos étapes de vérification
+
 ### Lien étape → code
 
 La classe `StepRecettes` contient toute la glue de ce projet. Un exemple sera plus efficace qu'une explication.
@@ -334,7 +345,154 @@ Et voici la glue correspondante :
     }
 ```
 
-Si vous tentez de mettre le tableau de `Etape map` dans l'autre sens, vous aurez une erreur. Si vous mettez une valeur dans la première case du tableau dans `Etape map de maps` vous aurez une erreur.
+Si vous tentez de mettre le tableau de `Etape map` dans l'autre sens, vous aurez une erreur. Si vous mettez une valeur dans la première case du tableau dans `Etape map de maps` vous aurez une erreur. Il est donc important de bien définir le format que le tableau aura avec les testeurs pour éviter d'avoir plein d'erreur avec la glue.
+
+## Création de vos propres variables
+
+Vous pouvez trouver dans ce projet la glue suivante :
+
+``` java
+@Quand("Je réalise l'action : {etape}")
+public void jeRealiseAction(EtapeRealisation etape) {
+//Action
+}
+```
+
+La variable `{etape}` ne correspond à aucune variable que j'ai présenté. C'est tout simplement parce que cette variable est une variable qui est défini dans la glue avec le code suivant :
+``` java
+@ParameterType("COUPER|MELANGER|ATTENDRE|CUIRE")  // regexp
+public EtapeRealisation etape(String etape){
+return EtapeRealisation.valueOf(etape);
+}
+```
+
+L'annotation `@ParameterType` permet de définir un nouveau type de variable. Le nom de la variable `{etape}` correspond au nom de la méthode `etape`. Cette variable particulière permet 2 choses :
+* Un regex défini les strings qui sont autorisés ou non. l'étape ne sera pas reconnu par la glue si notre variable ne correspond pas au regex.
+* La méthode peut renvoyer n'importe quel objet java.
+* 
+Dans l'exemple, la variable n'autorise que 4 valeurs et ensuite renvoie un enum.
+
+Voici un exemple qui va un peu plus loin :
+```java
+@ParameterType("([0-9]{4})-([0-9]{2})-([0-9]{2})")
+public LocalDate iso8601Date(String year, String month, String day) {
+return LocalDate.of(Integer.parseInt(year), Integer.parseInt(month), Integer.parseInt(day));
+}
+```
+
+Les regex permettent de définir des groupes de caractères. On peut récupérer les groupes ainsi formés directement dans la signature de la méthode.
+
+Enfin, il est aussi possible de transformer automatiquement un tableau de donnée GHERKIN en un objet java ou une liste d'objet java. Voici un exemple :
+```java
+    @Etantdonnéque("J'ai appris les plats suivants : \\(convertion auto)")
+    public void jAiApprisLesPlatsSuivantsConvertionAuto(List<Recette> recettes) {
+        // Mon code qui utilise la liste de recette
+    }
+
+    @DataTableType
+    public Recette recetteEntryTransformer(Map<String, String> table) {
+
+        // Code permettant de convertir une map en recette
+        // Puis on retourne une recette
+        return new Recette(/*Information pour le construteur*/);
+    }
+```
+
+L'annotation `@DataTableType` permet de définir un nouveau convertisseur pour transformer une list de string ou une map de string en un objet java. Dans notre cas, on transforme une map en objet recette.
+
+Lorsqu'on utilise ce convertisseur, il suffit d'avoir le bon type de tableau.
+
+Dans notre exemple notre transformateur transforme Map<String, String> -> Recette
+
+On peut alors écrire une étape avec un tableau de ce type pour utiliser notre convertisseur :
+```gherkin
+# language: fr
+Quand mon étape
+| cle1 | valeur1 |
+| cle2 | valeur2 |
+| cle3 | valeur3 |
+```
+On aurait alors une glue java de ce type :
+```java
+@Quand("mon étape")
+public void monEtape (Recette recette) {
+// Le code qui va bien
+}
+```
+
+On peut aussi avoir un tableau de ce type qui utilisera aussi notre convertisseur :
+```gherkin
+# language: fr
+Quand mon étape
+| cle1     | Cle2    | Cle3     |
+| valeur11 |valeur12 | valeur13 |
+| valeur21 |valeur22 | valeur23 |
+```
+On aurait alors une glue java de ce type :
+```java
+@Quand("mon étape")
+public void monEtape(List<Recette> recettes) {
+// Le code qui va bien
+}
+```
+
+Et enfin, on peut avoir ce cas de figure qui utilisera encore notre convertisseur :
+```gherkin
+# language: fr
+Quand mon étape
+|        | colonne1 | colonne2 |
+| ligne1 | valeur11 | valeur12 |
+| ligne2 | valeur21 | valeur22 |
+```
+On aurait alors une glue java de ce type :
+```java
+@Quand("mon étape")
+public void monEtape(Map<String, Recette> recettes) {
+// Le code qui va bien
+}
+```
+
+## Lancer les tests avec maven
+
+La classe suivante permet de lancer les tests Cucumber :
+```java
+@RunWith(Cucumber.class)
+@CucumberOptions(
+plugin = "pretty",
+features = "classpath:features",
+glue = "classpath:org.example.glue")
+class RunCucumberTest {
+}
+```
+
+Cette classe a `Test` dans son nom. Elle est donc scruté lorsqu'on lance la commande `mvn test`.
+
+On indique bien qu'on lance des tests Cucumber avec un runner Cucumber avec le tag `@RunWith(Cucumber.class)`.
+Le tag `@CucumberOptions` permet de définir comment le runner va fonctionner, le format de sortie du rapport d'exécution et où il va chercher la glue et les fichiers ".feature". Les 2 options importantes dans cette exemple sont donc :
+* `features = "classpath:features"` -> défini le chemin vers le ou les fichiers features
+* `glue = "classpath:org.example.glue"` -> défini le chemin vers la glue
+
+
+## Bonnes pratiques
+
+La chose la plus importante est le dialogue entre les testeurs qui vont écrire le GHERKIN et les développeurs qui développeront la glue CUCUMBER.
+Il faut définir ensemble la granularité des étapes en gardant en tête que ces étapes doivent être compréhensible à la première lecture et doivent être réutilisable dans le plus de scénario possible.
+Dans l'idéal, la lecture des scénarios par une personne extérieur doit permettre de comprendre le fonctionnement du système.
+
+Il est important de définir les variables qui seront utilisées.
+Les développeurs doivent faire attention à bien indiquer les limites de ces variables au testeurs et vérifier que cela correspond bien à leurs besoins.
+
+Il faut bien définir les tableaux.
+Est-ce que leur dimension est fixe ou non ? Est-ce qu'on met un titre aux colonnes ? Est-ce qu'un tableau correspondra toujours au même type d'objet ?
+Si un tableau devient trop gros et est illisible, il est souvent préférable de créer plusieurs étapes qui permettront peut-être simplement d'enregistrer les nombreux entrant avant d'avoir une étape qui va amalgamer toutes ces données et les traiter ou construire un objet java avec.
+
+Où allez-vous conserver vos scénarios ?
+Moi, je préfère les garder dans git car les scénarios vont évoluer avec les évolutions du système et on peut ensuite envoyer les scénarios et le résultat de l'éxécution de ces scénarios sur les endpoint exposé par x-ray.
+Cette question doit être soumise à l'ensemble de l'équipe pour peser le pour et le contre.
+
+Pour les développeurs :
+* Vous pouvez utiliser plusieurs classes java différentes pour définir votre glue et l'organiser.
+* Il est souvent interressant d'avoir une classe de contexte qui garde en mémoire les actions du scénario en cours. Cela permet généralement de ce facilité la vie lors des étapes de vérification.
 
 Vous avez maintenant les informations de base pour commencer à utiliser le GHERKIN et CUCUMBER.
 
