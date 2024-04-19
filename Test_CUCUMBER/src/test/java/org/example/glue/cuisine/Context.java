@@ -1,4 +1,4 @@
-package org.example.glue;
+package org.example.glue.cuisine;
 
 import org.example.cuisine.AppareilCuisson;
 import org.example.cuisine.EtapeRealisation;

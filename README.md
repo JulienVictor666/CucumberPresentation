@@ -493,7 +493,52 @@ Cette question doit être soumise à l'ensemble de l'équipe pour peser le pour 
 Pour les développeurs :
 * Vous pouvez utiliser plusieurs classes java différentes pour définir votre glue et l'organiser.
 * Il est souvent interressant d'avoir une classe de contexte qui garde en mémoire les actions du scénario en cours. Cela permet généralement de ce facilité la vie lors des étapes de vérification.
+* Mettre le moins d'intelligence possible dans la classe qui défini les étapes (step). Rester sur la mise en forme des tableaux GHERKIN et les variables GHERKIN.
 
 Vous avez maintenant les informations de base pour commencer à utiliser le GHERKIN et CUCUMBER.
+
+## Exercice
+
+Je vous laisse un petit bout de code à tester. Vous allez tester une librairie. Cette librairie contient des livres avec chacun un titre, un prix, un auteur, un éditeur et un genre. Le genre est un enum et l'éditeur une chaine de caractère sans espace ni caractère spéciaux.
+La librairie permet de faire des recherches dans les livres. On peut chercher par titre et on considère que 2 livre ne peuvent pas avoir le même titre. On peut faire une recherche par auteur et on aura potentiellement plusieurs livres et une recherche par genre et là aussi on aura potentiellement plusieurs livres.
+
+Les étapes doivent être créer dans le fichier testLib.feature
+La glue doit être créé dans la classe StepLibrairie.
+
+Premier exercice :
+Créer un constructeur dans la classe librairie et ajouter quelques livres dans le constructeur qui vont remplir la map de l'objet libraire (la clé correspond au titre du livre).
+Ensuite, il faut créer les étapes suivantes :
+```gherkin
+# language: fr
+Etant donné que je trouve une librairie
+Quand Je veux acheter le livre "titre du livre"
+Alors j'achète le livre avec 20 euros
+```
+
+* La première étape créer l'objet librairie. Il faudra stocker cet objet dans un objet context.
+* La seconde étape fait une recherche pour trouver le livre que l'on souhaite acheter. On a donc une variable pour le titre du livre
+* La troisième étape sort positive si la librairie possède le livre et que j'ai assé d'argent pour l'acheter. Il faut aussi une variable pour l'argent.
+
+Second exercice : 
+Refaire le même test mais il faut que l'étape de création de la librairie est plusieurs variable permettent de définir un livre. Utilisé pour le moment des variables simples (string, word, double).
+Oui la librairie n'aura qu'un livre.
+
+Troisième exercice : 
+Reprendre le scénario précédent et n'autorisé que les valeurs de l'enum pour la variable du genre du livre.
+
+Quatrième exercice :
+refaire l'étape de création de la librairie avec un tableau qui contiendra tous les livres de la librairie. Ne pas utiliser pour le moment l'annotation `@DataTableType`
+
+Cinquième exercice :
+Utiliser maintenant le tag `@DataTableType` pour convertir automatiquement chaque ligne du tableau en livre.
+
+Sixième exercice :
+Faire une étape : Quand je cherche tous les livres de cette auteur "nom de l'auteur"
+Cette étape remonte donc potentiellement plusieurs livre.
+Faire une autre étape : Alors je trouve les livres suivant :
+Cette étape est suivi d'un tableau de livre et vérifier ensuite que ce tableau correspond au résultat de l'étape précédente.
+
+Septième exercice : 
+Lancer vos scénarios avec la classe RunCucumberTest
 
 Bonne journée

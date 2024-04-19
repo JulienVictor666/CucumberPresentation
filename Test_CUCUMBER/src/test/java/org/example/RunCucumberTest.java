@@ -8,6 +8,6 @@ import org.junit.runner.RunWith;
 @CucumberOptions(
         plugin = "pretty",
         features = "classpath:features",
-        glue = "classpath:org.example.glue")
+        glue = "classpath:org.example.glue.cuisine")
 class RunCucumberTest {
 }
